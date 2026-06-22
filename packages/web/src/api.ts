@@ -24,7 +24,9 @@ class AuthError extends Error {}
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers = new Headers(init.headers);
-  headers.set('Content-Type', 'application/json');
+  // Solo declaramos JSON cuando realmente mandamos body: Fastify rechaza un
+  // body vacío si el Content-Type es application/json (ej. DELETE sin body).
+  if (init.body != null) headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const res = await fetch(path, { ...init, headers });
