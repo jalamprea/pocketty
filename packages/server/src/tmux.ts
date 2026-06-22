@@ -63,6 +63,10 @@ export async function killSession(name: string): Promise<void> {
   await tmux(['kill-session', '-t', name]);
 }
 
+export async function renameSession(name: string, newName: string): Promise<void> {
+  await tmux(['rename-session', '-t', name, newName]);
+}
+
 export async function sessionExists(name: string): Promise<boolean> {
   try {
     await tmux(['has-session', '-t', name]);

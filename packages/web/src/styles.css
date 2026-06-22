@@ -199,7 +199,8 @@ button.danger {
   color: var(--muted);
 }
 
-.session-item .danger {
+.session-item .ghost {
+  border: none;
   border-left: 1px solid var(--border);
   border-radius: 0;
   padding: 0 1.1rem;

@@ -8,6 +8,7 @@ import { issueToken, verifyPassword, verifyToken, tokenFromHeader } from './auth
 import {
   createSession,
   killSession,
+  renameSession,
   listSessions,
   isValidSessionName,
 } from './tmux.js';
@@ -64,6 +65,17 @@ app.delete<{ Params: { name: string } }>('/api/sessions/:name', async (req, repl
     return reply.code(400).send({ error: 'Nombre de sesión inválido' });
   }
   await killSession(name);
+  return { ok: true };
+});
+
+app.patch<{ Params: { name: string } }>('/api/sessions/:name', async (req, reply) => {
+  if (!requireAuth(req)) return reply.code(401).send({ error: 'No autorizado' });
+  const { name } = req.params;
+  const parsed = createSchema.safeParse(req.body);
+  if (!isValidSessionName(name) || !parsed.success || !isValidSessionName(parsed.data.name)) {
+    return reply.code(400).send({ error: 'Nombre de sesión inválido' });
+  }
+  await renameSession(name, parsed.data.name);
   return { ok: true };
 });
 

@@ -3,9 +3,13 @@ import {
   listSessions,
   createSession,
   killSession,
+  renameSession,
   AuthError,
   type Session,
 } from '../api.ts';
+
+// Mismo set de caracteres que valida el backend (isValidSessionName).
+const NAME_RE = /^[A-Za-z0-9_.-]{1,64}$/;
 
 interface Props {
   onOpen: (session: string) => void;
@@ -46,6 +50,22 @@ export function SessionList({ onOpen, onLogout, onAuthError }: Props) {
     } catch (err) {
       if (err instanceof AuthError) return onAuthError();
       setError(err instanceof Error ? err.message : 'Error al crear sesión');
+    }
+  }
+
+  async function handleRename(name: string) {
+    const next = prompt(`Nuevo nombre para "${name}":`, name)?.trim();
+    if (!next || next === name) return;
+    if (!NAME_RE.test(next)) {
+      setError('Nombre inválido. Usa letras, números, "_", "." o "-" (máx. 64).');
+      return;
+    }
+    try {
+      await renameSession(name, next);
+      await refresh();
+    } catch (err) {
+      if (err instanceof AuthError) return onAuthError();
+      setError(err instanceof Error ? err.message : 'Error al renombrar sesión');
     }
   }
 
@@ -101,6 +121,13 @@ export function SessionList({ onOpen, onLogout, onAuthError }: Props) {
                   {s.attached ? 'activa' : 'inactiva'}
                 </span>
               </span>
+            </button>
+            <button
+              className="ghost"
+              onClick={() => handleRename(s.name)}
+              title="Renombrar"
+            >
+              ✎
             </button>
             <button className="ghost danger" onClick={() => handleKill(s.name)}>
               ✕

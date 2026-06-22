@@ -62,6 +62,13 @@ export function killSession(name: string): Promise<{ ok: boolean }> {
   return request(`/api/sessions/${encodeURIComponent(name)}`, { method: 'DELETE' });
 }
 
+export function renameSession(name: string, newName: string): Promise<{ ok: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(name)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ name: newName }),
+  });
+}
+
 /** URL del WebSocket del terminal, con token y sesión en la query. */
 export function terminalWsUrl(session: string): string {
   const token = getToken() ?? '';
