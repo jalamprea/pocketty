@@ -8,6 +8,7 @@
     "packages/web"
   ],
   "scripts": {
+    "postinstall": "node scripts/fix-node-pty-perms.mjs",
     "dev": "npm run dev --workspace=packages/server & npm run dev --workspace=packages/web",
     "dev:server": "npm run dev --workspace=packages/server",
     "dev:web": "npm run dev --workspace=packages/web",
