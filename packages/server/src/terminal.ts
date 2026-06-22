@@ -17,17 +17,18 @@ interface ClientMessage {
  * mata la sesión: tmux la mantiene viva (detached) para poder retomarla.
  */
 export function attachTerminal(socket: WebSocket, sessionName: string): void {
-  const term = pty.spawn(
-    'tmux',
-    ['new-session', '-A', '-s', sessionName],
-    {
-      name: 'xterm-256color',
-      cols: 80,
-      rows: 24,
-      cwd: config.home,
-      env: { ...process.env, HOME: config.home, TERM: 'xterm-256color' },
-    },
-  );
+  // `-c` solo aplica si esta llamada CREA la sesión (no existía aún); al
+  // adjuntarse a una existente, tmux lo ignora.
+  const args = ['new-session', '-A', '-s', sessionName];
+  if (config.startDir) args.push('-c', config.startDir);
+
+  const term = pty.spawn('tmux', args, {
+    name: 'xterm-256color',
+    cols: 80,
+    rows: 24,
+    cwd: config.startDir ?? config.home,
+    env: { ...process.env, HOME: config.home, TERM: 'xterm-256color' },
+  });
 
   const onData = term.onData((data) => {
     if (socket.readyState === socket.OPEN) {

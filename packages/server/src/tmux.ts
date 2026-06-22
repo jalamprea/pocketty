@@ -56,7 +56,9 @@ export async function listSessions(): Promise<TmuxSession[]> {
 }
 
 export async function createSession(name: string): Promise<void> {
-  await tmux(['new-session', '-d', '-s', name, '-x', '120', '-y', '40']);
+  const args = ['new-session', '-d', '-s', name, '-x', '120', '-y', '40'];
+  if (config.startDir) args.push('-c', config.startDir);
+  await tmux(args);
 }
 
 export async function killSession(name: string): Promise<void> {
