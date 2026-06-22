@@ -1,0 +1,272 @@
+:root {
+  --bg: #0b0e14;
+  --surface: #11161f;
+  --surface-2: #1a2230;
+  --border: #232c3d;
+  --text: #d6deeb;
+  --muted: #7c8aa5;
+  --accent: #5ccfe6;
+  --danger: #ff6b6b;
+  --ok: #5cdb8b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 360px;
+}
+
+.login h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0;
+}
+
+input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 0.7rem 0.8rem;
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--accent);
+}
+
+button {
+  background: var(--accent);
+  color: #06222b;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button.danger {
+  color: var(--danger);
+  border-color: transparent;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.new-session {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.new-session input {
+  flex: 1;
+}
+
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  overflow-y: auto;
+}
+
+.session-item {
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+
+.session-open {
+  flex: 1;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-radius: 0;
+}
+
+.session-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.session-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+}
+
+.badge.attached {
+  color: var(--ok);
+}
+
+.badge.detached {
+  color: var(--muted);
+}
+
+.session-item .danger {
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  padding: 0 1.1rem;
+}
+
+/* Terminal */
+.terminal-page {
+  overflow: hidden;
+}
+
+.session-title {
+  font-family: monospace;
+  font-size: 0.95rem;
+}
+
+.status {
+  font-size: 0.8rem;
+}
+
+.status-open {
+  color: var(--ok);
+}
+
+.status-connecting {
+  color: var(--accent);
+}
+
+.status-closed {
+  color: var(--danger);
+}
+
+.terminal-host {
+  flex: 1;
+  min-height: 0;
+  padding: 0.4rem;
+  background: var(--bg);
+}
+
+.terminal-host .xterm {
+  height: 100%;
+}
+
+.controlbar {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  overflow-x: auto;
+}
+
+.controlbar .key {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  min-width: 2.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.controlbar .key.active {
+  background: var(--accent);
+  color: #06222b;
+}
+
+.controlbar .key.wide {
+  flex: 1;
+}
