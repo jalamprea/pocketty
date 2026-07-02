@@ -1,9 +1,9 @@
 /**
- * Genera el hash bcrypt de un password para guardarlo en PASSWORD_HASH.
+ * Generates the bcrypt hash of a password to store it in PASSWORD_HASH.
  *
- * Uso:
- *   npm run hash               -> pregunta el password por stdin (oculto no garantizado)
- *   npm run hash -- 'miPass'   -> hashea el argumento
+ * Usage:
+ *   npm run hash               -> asks for the password via stdin (hidden not guaranteed)
+ *   npm run hash -- 'myPass'   -> hashes the argument
  */
 import bcrypt from 'bcryptjs';
 import readline from 'node:readline';
@@ -14,7 +14,7 @@ async function readPassword(): Promise<string> {
 
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   return new Promise((resolve) => {
-    rl.question('Password a hashear: ', (answer) => {
+    rl.question('Password to hash: ', (answer) => {
       rl.close();
       resolve(answer);
     });
@@ -24,11 +24,11 @@ async function readPassword(): Promise<string> {
 async function main() {
   const password = (await readPassword()).trim();
   if (!password) {
-    console.error('No se ingresó password.');
+    console.error('No password provided.');
     process.exit(1);
   }
   const hash = await bcrypt.hash(password, 12);
-  console.log('\nAgrega esto a tu .env:\n');
+  console.log('\nAdd this to your .env:\n');
   console.log(`PASSWORD_HASH=${hash}\n`);
 }
 

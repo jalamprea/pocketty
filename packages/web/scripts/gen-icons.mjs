@@ -1,7 +1,7 @@
 /**
- * Genera icon-192.png e icon-512.png (íconos de la PWA) a partir de un dibujo
- * simple: fondo oscuro con un prompt ">_" en color acento. Sin dependencias
- * externas: rasteriza a un buffer RGBA y lo codifica como PNG con zlib.
+ * Generates icon-192.png and icon-512.png (the PWA icons) from a simple drawing:
+ * a dark background with a ">_" prompt in the accent color. No external
+ * dependencies: rasterizes to an RGBA buffer and encodes it as PNG with zlib.
  */
 import { deflateSync } from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -37,11 +37,11 @@ function encodePng(size, pixels) {
   ihdr.writeUInt32BE(size, 4);
   ihdr[8] = 8; // bit depth
   ihdr[9] = 6; // color type RGBA
-  // resto en 0 (compresión/filtro/interlace por defecto)
+  // rest left at 0 (default compression/filter/interlace)
   const stride = size * 4;
   const raw = Buffer.alloc((stride + 1) * size);
   for (let y = 0; y < size; y++) {
-    raw[y * (stride + 1)] = 0; // filtro None
+    raw[y * (stride + 1)] = 0; // None filter
     pixels.copy(raw, y * (stride + 1) + 1, y * stride, y * stride + stride);
   }
   const idat = deflateSync(raw);
@@ -97,5 +97,5 @@ const outDir = path.resolve(here, '../public');
 mkdirSync(outDir, { recursive: true });
 for (const size of [192, 512]) {
   writeFileSync(path.join(outDir, `icon-${size}.png`), makeIcon(size));
-  console.log(`icon-${size}.png generado`);
+  console.log(`icon-${size}.png generated`);
 }

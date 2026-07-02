@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Backend dev: por defecto en http://127.0.0.1:8723
+// Backend dev: defaults to http://127.0.0.1:8723
 const API_TARGET = process.env.VITE_API_TARGET ?? 'http://127.0.0.1:8723';
 
 export default defineConfig({
@@ -14,7 +14,7 @@ export default defineConfig({
       manifest: {
         name: 'Remote Terminal',
         short_name: 'Terminal',
-        description: 'Maneja tus sesiones de terminal/tmux remotas desde el móvil.',
+        description: 'Manage your remote terminal/tmux sessions from your phone.',
         theme_color: '#0b0e14',
         background_color: '#0b0e14',
         display: 'standalone',

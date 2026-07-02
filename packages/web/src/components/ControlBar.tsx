@@ -1,8 +1,8 @@
 import type { MouseEvent } from 'react';
 
 /**
- * Botonera para teclas que el teclado del móvil no tiene, imprescindibles para
- * navegar TUIs como `claude --resume` (flechas, Enter, Esc, Tab, Ctrl).
+ * Control bar for keys the mobile keyboard lacks, essential for navigating TUIs
+ * like `claude --resume` (arrows, Enter, Esc, Tab, Ctrl).
  */
 interface Props {
   send: (data: string) => void;
@@ -11,9 +11,9 @@ interface Props {
 }
 
 /**
- * Evita que el botón robe el foco del terminal. Sin esto, al tocar un botón el
- * textarea de xterm pierde el foco y el teclado del móvil se cierra; el `onClick`
- * igual se dispara. Es el patrón estándar de las barras de herramientas.
+ * Prevents the button from stealing focus from the terminal. Without this,
+ * tapping a button makes xterm's textarea lose focus and the mobile keyboard
+ * closes; the `onClick` still fires. This is the standard toolbar pattern.
  */
 const keepFocus = (e: MouseEvent) => e.preventDefault();
 
@@ -28,7 +28,7 @@ const KEYS = {
 };
 
 export function ControlBar({ send, ctrlActive, onToggleCtrl }: Props) {
-  // Orden por frecuencia de uso (de más a menos): Tab, Enter, flechas, Esc, Ctrl.
+  // Ordered by usage frequency (most to least): Tab, Enter, arrows, Esc, Ctrl.
   return (
     <div className="controlbar">
       <button className="key" onMouseDown={keepFocus} onClick={() => send(KEYS.tab)}>
@@ -56,7 +56,7 @@ export function ControlBar({ send, ctrlActive, onToggleCtrl }: Props) {
         className={ctrlActive ? 'key active' : 'key'}
         onMouseDown={keepFocus}
         onClick={onToggleCtrl}
-        title="Próxima tecla como Ctrl+_"
+        title="Next key as Ctrl+_"
       >
         Ctrl
       </button>

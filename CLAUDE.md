@@ -20,7 +20,7 @@ npm start             # runs the built backend; serves API + PWA on :8723
 npm run hash          # bcrypt-hash a password for PASSWORD_HASH
 ```
 
-There is **no test suite and no linter** configured. `build` is the only correctness gate (`tsc`). Per user rules, do not run `build` unless explicitly asked.
+There is **no test suite and no linter** configured. `build` is the only correctness gate (`tsc`).
 
 Develop against `http://localhost:5173` (Vite proxies `/api` and the `/api/terminal` WS to the backend). `localhost` is a secure context, so the PWA and terminal work fully without HTTPS; for phone access the README uses `tailscale serve`.
 
@@ -41,7 +41,7 @@ Two packages, both ESM (`"type": "module"`), TypeScript, sharing `tsconfig.base.
 - `config.ts` — central env config; `JWT_SECRET` and `PASSWORD_HASH` are **required** (throws on startup if missing). Copy `.env.example` → `.env`.
 - `auth.ts` — single-user model: one bcrypt password hash → a JWT (`sub: 'tui-app-user'`). No user accounts.
 - `tmux.ts` — shells out to `tmux` via `execFile` (arg arrays, never a shell string). `listSessions` treats "no server/sessions" as an empty list. Session names are validated against `NAME_RE` (`isValidSessionName`) on **every** route to prevent injection — keep this guard when adding session endpoints.
-- `terminal.ts` — `attachTerminal` spawns `tmux new-session -A -s <name>` (attach-or-create). **tmux is the persistence layer**: closing the WebSocket calls `term.kill()` which only *detaches* the tmux client; the session stays alive for resume. Killing a session is explicit (the DELETE route).
+- `terminal.ts` — `attachTerminal` spawns `tmux new-session -A -s <name>` (attach-or-create). **tmux is the persistence layer**: closing the WebSocket calls `term.kill()` which only _detaches_ the tmux client; the session stays alive for resume. Killing a session is explicit (the DELETE route).
 - `index.ts` — routes + WS handler. In production, if `web/dist` exists it's served statically with an SPA fallback (non-`/api` routes → `index.html`).
 
 ### Web (`packages/web/src`)
@@ -56,4 +56,4 @@ Two packages, both ESM (`"type": "module"`), TypeScript, sharing `tsconfig.base.
 - **WS auth is via query params** (`?token=…&session=…`), not headers — browsers can't set headers on `WebSocket`. The handler verifies the token and validates the session name before attaching.
 - Server imports use **`.js`** extensions (NodeNext resolution); web imports use **`.ts`/`.tsx`**. Match the package you're editing.
 - `npm run build` builds **web first, then server** because the server's static handler serves `web/dist`.
-- User-facing strings and code comments in this repo are in **Spanish**; keep that style when editing existing files.
+- User-facing strings and code comments in this repo are in **English**; keep that style when editing existing files. (The `README.md` is still Spanish — pending translation.)

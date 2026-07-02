@@ -14,7 +14,7 @@ export function Login({ onLoggedIn }: { onLoggedIn: () => void }) {
       await login(password);
       onLoggedIn();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      setError(err instanceof Error ? err.message : 'Failed to log in');
     } finally {
       setLoading(false);
     }
@@ -24,7 +24,7 @@ export function Login({ onLoggedIn }: { onLoggedIn: () => void }) {
     <div className="centered">
       <form className="card login" onSubmit={handleSubmit}>
         <h1>Remote Terminal</h1>
-        <p className="muted">Ingresa tu password para conectarte.</p>
+        <p className="muted">Enter your password to connect.</p>
         <input
           type="password"
           placeholder="Password"
@@ -34,7 +34,7 @@ export function Login({ onLoggedIn }: { onLoggedIn: () => void }) {
         />
         {error && <div className="error">{error}</div>}
         <button type="submit" disabled={loading || !password}>
-          {loading ? 'Conectando…' : 'Entrar'}
+          {loading ? 'Connecting…' : 'Log in'}
         </button>
       </form>
     </div>

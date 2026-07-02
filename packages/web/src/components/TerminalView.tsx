@@ -20,7 +20,7 @@ export function TerminalView({ session, onBack, onAuthError }: Props) {
   const [status, setStatus] = useState<Status>('connecting');
   const [ctrlActive, setCtrlActive] = useState(false);
 
-  // Envía datos crudos al PTY a través del WebSocket.
+  // Sends raw data to the PTY through the WebSocket.
   function sendInput(data: string) {
     const ws = wsRef.current;
     if (ws && ws.readyState === WebSocket.OPEN) {
@@ -60,10 +60,10 @@ export function TerminalView({ session, onBack, onAuthError }: Props) {
       if (ev.code === 1008) onAuthError();
     };
 
-    // Entrada del usuario desde el teclado del terminal.
+    // User input from the terminal keyboard.
     const dataSub = term.onData((data) => {
       if (ctrlRef.current && data.length === 1) {
-        // Convierte la tecla en su carácter de control (Ctrl+A = 0x01, etc.).
+        // Converts the key into its control character (Ctrl+A = 0x01, etc.).
         const code = data.toUpperCase().charCodeAt(0);
         sendInput(String.fromCharCode(code & 0x1f));
         ctrlRef.current = false;
@@ -73,7 +73,7 @@ export function TerminalView({ session, onBack, onAuthError }: Props) {
       sendInput(data);
     });
 
-    // Reajusta el tamaño del PTY cuando cambia el layout (teclado, rotación…).
+    // Resizes the PTY when the layout changes (keyboard, rotation…).
     const resizeObserver = new ResizeObserver(() => {
       try {
         fit.fit();
@@ -81,19 +81,19 @@ export function TerminalView({ session, onBack, onAuthError }: Props) {
           ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
         }
       } catch {
-        /* layout transitorio */
+        /* transient layout */
       }
     });
     resizeObserver.observe(containerRef.current!);
 
-    // Scroll táctil → historial de tmux. En el celular no hay rueda, así que
-    // traducimos el arrastre vertical en eventos de rueda SGR (botón 64 = arriba,
-    // 65 = abajo) que tmux (con mouse mode) interpreta como scroll del copy mode.
-    // Arrastrar hacia abajo revela lo anterior (rueda arriba), como al leer.
+    // Touch scroll → tmux history. On a phone there's no wheel, so we translate
+    // the vertical drag into SGR wheel events (button 64 = up, 65 = down) that
+    // tmux (with mouse mode) interprets as copy-mode scroll. Dragging down
+    // reveals earlier content (wheel up), like reading.
     const host = containerRef.current!;
     let touchY = 0;
     let accum = 0;
-    const STEP = 18; // píxeles de arrastre por "tick" de rueda
+    const STEP = 18; // drag pixels per wheel "tick"
 
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return;
@@ -115,7 +115,7 @@ export function TerminalView({ session, onBack, onAuthError }: Props) {
         sendInput(`\x1b[<65;${col};${row}M`);
         accum += STEP;
       }
-      e.preventDefault(); // evita el rebote del viewport
+      e.preventDefault(); // prevents viewport bounce
     };
 
     host.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -131,7 +131,7 @@ export function TerminalView({ session, onBack, onAuthError }: Props) {
     };
   }, [session, onAuthError]);
 
-  // La botonera envía directo y devuelve el foco al terminal.
+  // The control bar sends directly and returns focus to the terminal.
   function sendFromBar(data: string) {
     if (ctrlRef.current && data.length === 1) {
       const code = data.toUpperCase().charCodeAt(0);
@@ -147,7 +147,7 @@ export function TerminalView({ session, onBack, onAuthError }: Props) {
     <div className="page terminal-page">
       <header className="topbar">
         <button className="ghost" onClick={onBack}>
-          ‹ Sesiones
+          ‹ Sessions
         </button>
         <span className="session-title">{session}</span>
         <span className={`status status-${status}`}>

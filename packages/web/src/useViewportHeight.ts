@@ -1,19 +1,19 @@
 import { useEffect } from 'react';
 
 /**
- * Sincroniza el alto REALMENTE visible con las variables CSS `--app-height` y
+ * Syncs the TRULY visible height with the CSS variables `--app-height` and
  * `--app-top`.
  *
- * En iOS, al abrir el teclado, el layout viewport (`100%` / `100vh` / `100dvh`)
- * NO se encoge: Safari desplaza el contenido hacia arriba y deja el teclado
- * flotando encima, tapando la barra inferior. La única fuente de verdad del
- * área visible es la Visual Viewport API:
- *   - `visualViewport.height`   → alto visible (pantalla menos teclado).
- *   - `visualViewport.offsetTop` → cuánto paneó Safari; lo compensamos para
- *     que un contenedor `position: fixed; top: var(--app-top)` siga al viewport.
+ * On iOS, when the keyboard opens, the layout viewport (`100%` / `100vh` /
+ * `100dvh`) does NOT shrink: Safari shifts the content up and leaves the
+ * keyboard floating on top, covering the bottom bar. The only source of truth
+ * for the visible area is the Visual Viewport API:
+ *   - `visualViewport.height`   → visible height (screen minus keyboard).
+ *   - `visualViewport.offsetTop` → how much Safari panned; we compensate so a
+ *     `position: fixed; top: var(--app-top)` container follows the viewport.
  *
- * Se aplica a nivel de documento (una sola vez, en App) porque es una
- * preocupación global; cada vista decide si consume las variables.
+ * Applied at the document level (once, in App) because it's a global concern;
+ * each view decides whether to consume the variables.
  */
 export function useViewportHeight() {
   useEffect(() => {
@@ -29,7 +29,7 @@ export function useViewportHeight() {
 
     apply();
 
-    // `resize` cubre teclado/rotación; `scroll` cubre el paneo de iOS.
+    // `resize` covers keyboard/rotation; `scroll` covers iOS panning.
     vv?.addEventListener('resize', apply);
     vv?.addEventListener('scroll', apply);
     window.addEventListener('resize', apply);

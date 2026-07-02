@@ -11,15 +11,15 @@ interface ClientMessage {
 }
 
 /**
- * Conecta un WebSocket a una sesión tmux mediante un PTY.
+ * Connects a WebSocket to a tmux session through a PTY.
  *
- * `tmux new-session -A -s <name>` adjunta si la sesión existe o la crea si no,
- * cubriendo "nueva o existente" sin lógica extra. Al cerrarse el socket NO se
- * mata la sesión: tmux la mantiene viva (detached) para poder retomarla.
+ * `tmux new-session -A -s <name>` attaches if the session exists or creates it if not,
+ * covering "new or existing" without extra logic. When the socket closes the session
+ * is NOT killed: tmux keeps it alive (detached) so it can be resumed.
  */
 export function attachTerminal(socket: WebSocket, sessionName: string): void {
-  // `-c` solo aplica si esta llamada CREA la sesión (no existía aún); al
-  // adjuntarse a una existente, tmux lo ignora.
+  // `-c` only applies if this call CREATES the session (it did not exist yet); when
+  // attaching to an existing one, tmux ignores it.
   const args = ['new-session', '-A', '-s', sessionName];
   if (config.startDir) args.push('-c', config.startDir);
 
@@ -31,8 +31,8 @@ export function attachTerminal(socket: WebSocket, sessionName: string): void {
     env: { ...process.env, HOME: config.home, TERM: 'xterm-256color' },
   });
 
-  // Al primer frame el servidor tmux ya está corriendo: activamos el mouse mode
-  // una sola vez para que la rueda/scroll táctil scrolleen el historial.
+  // By the first frame the tmux server is already running: we enable mouse mode
+  // once so the wheel/touch scroll scroll the history.
   let mouseEnabled = false;
   const onData = term.onData((data) => {
     if (!mouseEnabled) {
@@ -63,7 +63,7 @@ export function attachTerminal(socket: WebSocket, sessionName: string): void {
       try {
         term.resize(Math.max(1, msg.cols | 0), Math.max(1, msg.rows | 0));
       } catch {
-        /* el cliente puede mandar tamaños inválidos durante el layout */
+        /* the client may send invalid sizes during layout */
       }
     }
   });
@@ -71,7 +71,7 @@ export function attachTerminal(socket: WebSocket, sessionName: string): void {
   socket.on('close', () => {
     onData.dispose();
     onExit.dispose();
-    // Desconecta el cliente tmux (detach), pero deja la sesión viva.
+    // Disconnects the tmux client (detach), but leaves the session alive.
     term.kill();
   });
 }

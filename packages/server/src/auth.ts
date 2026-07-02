@@ -25,7 +25,7 @@ export function verifyToken(token: string | undefined | null): boolean {
   }
 }
 
-/** Extrae el token de un header Authorization: Bearer <token>. */
+/** Extracts the token from an Authorization: Bearer <token> header. */
 export function tokenFromHeader(header: string | undefined): string | null {
   if (!header) return null;
   const [scheme, value] = header.split(' ');
