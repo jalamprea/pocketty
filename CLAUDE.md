@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A single-user tool to drive your laptop's terminal/tmux sessions **from your phone** via a PWA — built for daily use with Claude Code (`claude --resume`) and your `.zshrc` aliases. See `README.md` for the full setup/usage walkthrough.
+A single-user tool to drive your computer's terminal/tmux sessions **from your phone** via a PWA — built for daily use with Claude Code (`claude --resume`) and your `.zshrc` aliases. See `README.md` for the full setup/usage walkthrough.
 
 ## Commands
 

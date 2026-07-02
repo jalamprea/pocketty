@@ -1,17 +1,37 @@
-# pocketty
+<div align="center">
 
-**Your terminal, in your pocket** (`pocket` + `tty`). Drive your laptop's
-terminal/tmux sessions **from your phone**, via a PWA. Built for daily use with
-**Claude Code**: create/resume CLI sessions (`claude --resume`), run commands
-and aliases from your `.zshrc` (`gl`, `gdevtostage`, `cd`, `ls -al`…), then jump
-over to the Claude Code mobile app.
+# 📟 pocketty
 
-Sessions run inside **tmux**, so they survive phone disconnects and backend
-restarts: you can resume exactly where you left off, including interactive TUIs
-(menus, arrow keys, ANSI) like `claude --resume`.
+### Your terminal, in your pocket.
+
+Drive your computer's **tmux** sessions from your **phone** — a self-hosted PWA
+for when you step away from your desk but not from your work.
+
+<sub>`pocket` + `tty`</sub>
+
+[**Quick start**](#setup) · [How it works](#architecture) · [Security](#security-notes)
+
+<!--
+  🎥 LAUNCH TODO — drop a demo GIF/screenshot here (the #1 conversion asset):
+  phone opens app → taps a shortcut → live terminal → runs `claude --resume`.
+  Then replace this comment with:  ![pocketty in action](docs/demo.gif)
+-->
+
+</div>
+
+---
+
+## Why pocketty
+
+- 📱 **Phone → real terminal.** A full xterm.js terminal wired over a secure WebSocket to a PTY on your machine.
+- 🔁 **Never lose your place.** Sessions live in **tmux**, so they survive disconnects, reboots, and closing the app — resume exactly where you left off.
+- ⌨️ **TUIs actually work on mobile.** A touch control bar (arrows, Esc, Tab, Ctrl, Enter) makes `claude --resume`, vim, and menus usable from a phone keyboard.
+- ⭐ **One-tap shortcuts.** Save your project folders and launch a fresh session in any of them with a single tap — no typing `cd`.
+- 🔒 **Private by default.** Single-user password → JWT, bound to `127.0.0.1`, reachable only over your own [Tailscale](https://tailscale.com/) network. Nothing is exposed to the public internet.
+- 🤖 **Made for AI on the CLI.** Built to drive terminal AI agents (`claude`, `codex`, `aider`, …) and your `.zshrc` aliases (`gl`, `cd`, `ls -al`…) on the go.
 
 > **Why it exists:** pocketty was born from a real need — taking my dog **Loky**
-> for a walk without losing control of my terminal.
+> for a walk without losing control of my terminal. 🐕
 
 ## Architecture
 

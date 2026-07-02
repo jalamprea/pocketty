@@ -98,7 +98,7 @@ export async function renameSession(name: string, newName: string): Promise<void
  * Enables the tmux server's mouse mode: the mouse wheel (desktop) and the
  * synthetic touch scroll (mobile, see TerminalView) enter copy mode and
  * scroll the history instead of sending arrow keys. It is a global server
- * option, so it also applies to the laptop's tmux.
+ * option, so it also applies to the computer's tmux.
  */
 export async function enableMouse(): Promise<void> {
   try {

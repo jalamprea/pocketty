@@ -2,7 +2,8 @@
   "name": "pocketty",
   "version": "0.1.0",
   "private": true,
-  "description": "Your terminal in your pocket — drive your laptop's tmux sessions from your phone.",
+  "description": "Your terminal in your pocket — drive your computer's tmux sessions from your phone.",
+  "license": "MIT",
   "workspaces": [
     "packages/server",
     "packages/web"
