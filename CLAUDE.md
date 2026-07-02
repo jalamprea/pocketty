@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A single-user tool to drive your laptop's terminal/tmux sessions **from your phone** via a PWA — built for daily use with Claude Code (`claude --resume`) and your `.zshrc` aliases. See `README.md` (Spanish) for the full setup/usage walkthrough.
+A single-user tool to drive your laptop's terminal/tmux sessions **from your phone** via a PWA — built for daily use with Claude Code (`claude --resume`) and your `.zshrc` aliases. See `README.md` for the full setup/usage walkthrough.
 
 ## Commands
 
@@ -56,4 +56,4 @@ Two packages, both ESM (`"type": "module"`), TypeScript, sharing `tsconfig.base.
 - **WS auth is via query params** (`?token=…&session=…`), not headers — browsers can't set headers on `WebSocket`. The handler verifies the token and validates the session name before attaching.
 - Server imports use **`.js`** extensions (NodeNext resolution); web imports use **`.ts`/`.tsx`**. Match the package you're editing.
 - `npm run build` builds **web first, then server** because the server's static handler serves `web/dist`.
-- User-facing strings and code comments in this repo are in **English**; keep that style when editing existing files. (The `README.md` is still Spanish — pending translation.)
+- User-facing strings and code comments in this repo are in **English**; keep that style when editing existing files.

@@ -1,118 +1,118 @@
 # tui-app-server
 
-Maneja las sesiones de terminal de tu laptop **desde el móvil**, vía una PWA.
-Pensado para uso diario con **Claude Code**: crear/retomar sesiones del CLI
-(`claude --resume`), correr comandos y alias de tu `.zshrc` (`gl`,
-`gdevtostage`, `cd`, `ls -al`…) y luego saltar a la app de Claude Code móvil.
+Drive your laptop's terminal sessions **from your phone**, via a PWA. Built for
+daily use with **Claude Code**: create/resume CLI sessions (`claude --resume`),
+run commands and aliases from your `.zshrc` (`gl`, `gdevtostage`, `cd`,
+`ls -al`…), then jump over to the Claude Code mobile app.
 
-Las sesiones corren dentro de **tmux**, así que sobreviven a desconexiones del
-móvil y a reinicios del backend: puedes retomar exactamente donde estabas,
-incluyendo TUIs interactivas (menús, flechas, ANSI) como `claude --resume`.
+Sessions run inside **tmux**, so they survive phone disconnects and backend
+restarts: you can resume exactly where you left off, including interactive TUIs
+(menus, arrow keys, ANSI) like `claude --resume`.
 
-## Arquitectura
+## Architecture
 
 ```
-PWA (móvil)  ──HTTPS login──▶  JWT
+PWA (mobile)  ──HTTPS login──▶  JWT
    │
-   └──WSS (token + sesión)──▶  backend (Fastify) ──node-pty──▶ tmux new -A -s <s> ──▶ zsh
+   └──WSS (token + session)──▶  backend (Fastify) ──node-pty──▶ tmux new -A -s <s> ──▶ zsh
 ```
 
-- **`packages/server`** — Node + TypeScript. Auth con password→JWT, gestión de
-  sesiones tmux y un WebSocket que conecta un PTY al terminal de xterm.js.
-- **`packages/web`** — PWA con React + Vite + xterm.js. Login, lista de sesiones
-  y vista de terminal con una **botonera táctil** (flechas, Esc, Tab, Ctrl,
-  Enter) imprescindible para navegar TUIs desde el teclado del celular.
+- **`packages/server`** — Node + TypeScript. Password→JWT auth, tmux session
+  management, and a WebSocket that connects a PTY to the xterm.js terminal.
+- **`packages/web`** — PWA with React + Vite + xterm.js. Login, session list,
+  and a terminal view with a **touch control bar** (arrows, Esc, Tab, Ctrl,
+  Enter) essential for navigating TUIs from the phone keyboard.
 
-## Requisitos (en tu Mac)
+## Requirements (on your Mac)
 
 - Node.js ≥ 20
 - `tmux` (`brew install tmux`)
-- `zsh` (default en macOS) — así se cargan tus alias de `.zshrc`
-- [Tailscale](https://tailscale.com/) en la Mac **y** en el móvil
+- `zsh` (default on macOS) — so your `.zshrc` aliases load
+- [Tailscale](https://tailscale.com/) on the Mac **and** on the phone
 
 ## Setup
 
 ```bash
 npm install
 
-# 1. Configurar el backend
+# 1. Configure the backend
 cd packages/server
 cp .env.example .env
 
-# 2. Generar el hash de tu password y pegarlo en .env (PASSWORD_HASH=...)
-npm run hash            # te lo pide por consola
-#   o:  npm run hash -- 'tuPasswordSeguro'
+# 2. Generate your password hash and paste it into .env (PASSWORD_HASH=...)
+npm run hash            # prompts you on the console
+#   or:  npm run hash -- 'yourSecurePassword'
 
-# 3. Generar un JWT_SECRET y pegarlo en .env
+# 3. Generate a JWT_SECRET and paste it into .env
 node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 ```
 
-Edita `packages/server/.env`:
-- `PASSWORD_HASH` — el hash generado.
-- `JWT_SECRET` — el secreto aleatorio.
-- `SHELL` — `/bin/zsh` en Mac.
-- `HOST` — déjalo en `127.0.0.1` (lo expones con Tailscale, ver abajo).
+Edit `packages/server/.env`:
+- `PASSWORD_HASH` — the generated hash.
+- `JWT_SECRET` — the random secret.
+- `SHELL` — `/bin/zsh` on Mac.
+- `HOST` — leave it at `127.0.0.1` (you expose it with Tailscale, see below).
 
-## Desarrollo (en `localhost`)
+## Development (on `localhost`)
 
 ```bash
-npm run dev        # backend (8723) + web (Vite, 5173) en paralelo
+npm run dev        # backend (8723) + web (Vite, 5173) in parallel
 ```
 
-Abre `http://localhost:5173`. El dev server de Vite hace proxy de `/api` y del
-WebSocket al backend, así que en `localhost` (que es contexto seguro) la PWA y
-el terminal funcionan completos.
+Open `http://localhost:5173`. Vite's dev server proxies `/api` and the WebSocket
+to the backend, so on `localhost` (a secure context) the PWA and the terminal
+work fully.
 
-## Producción local + acceso remoto con Tailscale
+## Local production + remote access with Tailscale
 
-La PWA (service worker, "Agregar a inicio") **requiere HTTPS** salvo en
-`localhost`. La forma más simple y segura de tener HTTPS desde el móvil sin
-abrir puertos públicos es **`tailscale serve`**, que pone un certificado válido
-delante del backend en una URL `https://<host>.<tailnet>.ts.net`.
+The PWA (service worker, "Add to Home Screen") **requires HTTPS** except on
+`localhost`. The simplest and safest way to get HTTPS from your phone without
+opening public ports is **`tailscale serve`**, which puts a valid certificate in
+front of the backend at a `https://<host>.<tailnet>.ts.net` URL.
 
 ```bash
-# 1. Build de la PWA (el backend la sirve como estáticos en el mismo origen)
+# 1. Build the PWA (the backend serves it as static files on the same origin)
 npm run build
 
-# 2. Arrancar el backend (sirve API + PWA en el puerto 8723)
+# 2. Start the backend (serves API + PWA on port 8723)
 npm start
 
-# 3. Exponer por HTTPS dentro de tu tailnet (requiere HTTPS habilitado en la
-#    admin console de Tailscale: Settings → Keys → HTTPS Certificates)
+# 3. Expose over HTTPS within your tailnet (requires HTTPS enabled in the
+#    Tailscale admin console: Settings → Keys → HTTPS Certificates)
 tailscale serve --bg 8723
-tailscale serve status     # muestra la URL https://<host>.<tailnet>.ts.net
+tailscale serve status     # shows the URL https://<host>.<tailnet>.ts.net
 ```
 
-En el móvil (con Tailscale activo y logueado en tu tailnet):
-1. Abre la URL `https://<host>.<tailnet>.ts.net`.
-2. Loguéate con tu password.
-3. "Agregar a pantalla de inicio" para instalar la PWA.
+On the phone (with Tailscale active and logged into your tailnet):
+1. Open the `https://<host>.<tailnet>.ts.net` URL.
+2. Log in with your password.
+3. "Add to Home Screen" to install the PWA.
 
-> Solo tus propios dispositivos en el tailnet pueden alcanzar el backend; no se
-> expone nada al internet público. El password→JWT es la segunda capa.
+> Only your own devices on the tailnet can reach the backend; nothing is exposed
+> to the public internet. The password→JWT is the second layer.
 
-## Uso
+## Usage
 
-1. **Login** con tu password.
-2. **Lista de sesiones**: crea una nueva o retoma una existente (sigue viva
-   aunque cierres la app).
-3. En el **terminal**: escribe comandos normales. Para TUIs como
-   `claude --resume`, usa la **botonera** inferior para flechas/Enter/Esc; el
-   botón **Ctrl** convierte la siguiente tecla en Ctrl+_ (ej. Ctrl+C).
+1. **Log in** with your password.
+2. **Session list**: create a new one or resume an existing one (it stays alive
+   even if you close the app).
+3. In the **terminal**: type normal commands. For TUIs like `claude --resume`,
+   use the bottom **control bar** for arrows/Enter/Esc; the **Ctrl** button
+   turns the next key into Ctrl+_ (e.g. Ctrl+C).
 
-## Notas de seguridad
+## Security notes
 
-- Esto da acceso a una shell de tu máquina: mantén `HOST=127.0.0.1` + Tailscale,
-  un `JWT_SECRET` fuerte y un password robusto.
-- El backend nunca guarda el password en claro (solo el hash bcrypt).
-- Cerrar el terminal en el móvil hace *detach* de tmux; **no** mata la sesión.
-  Para terminarla, usa el botón ✕ en la lista de sesiones.
+- This grants access to a shell on your machine: keep `HOST=127.0.0.1` +
+  Tailscale, a strong `JWT_SECRET`, and a robust password.
+- The backend never stores the password in plaintext (only the bcrypt hash).
+- Closing the terminal on the phone *detaches* tmux; it does **not** kill the
+  session. To end it, use the ✕ button in the session list.
 
 ## Scripts
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
-| `npm run dev` | Backend + PWA en modo desarrollo |
-| `npm run build` | Build de la PWA y del backend |
-| `npm start` | Arranca el backend (sirve API + PWA) |
-| `npm run hash` | Genera el hash bcrypt de un password |
+| `npm run dev` | Backend + PWA in development mode |
+| `npm run build` | Build the PWA and the backend |
+| `npm start` | Start the backend (serves API + PWA) |
+| `npm run hash` | Generate the bcrypt hash of a password |
