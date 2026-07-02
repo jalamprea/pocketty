@@ -27,6 +27,9 @@ export function Shortcuts({ onOpen, onAuthError }: Props) {
   const [form, setForm] = useState<FormState | null>(null);
   // Default dir that relative paths resolve against (START_DIR or its fallback).
   const [baseDir, setBaseDir] = useState('');
+  // In-flight feedback: the form action running, and the shortcut being launched.
+  const [pending, setPending] = useState<'save' | 'delete' | null>(null);
+  const [launchingId, setLaunchingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -44,46 +47,57 @@ export function Shortcuts({ onOpen, onAuthError }: Props) {
   }, [load]);
 
   async function launch(s: Shortcut) {
+    if (launchingId) return;
     setError(null);
+    setLaunchingId(s.id);
     try {
       const { name } = await launchShortcut(s.id);
       onOpen(name);
     } catch (err) {
       if (err instanceof AuthError) return onAuthError();
       setError(err instanceof Error ? err.message : 'Failed to launch session');
+    } finally {
+      setLaunchingId(null);
     }
   }
 
   async function save() {
-    if (!form) return;
+    if (!form || pending) return;
     const label = form.label.trim();
     const path = form.path.trim();
     if (!label || !path) {
       setError('Fill in name and path.');
       return;
     }
+    setError(null);
+    setPending('save');
     try {
       if (form.id) await updateShortcut(form.id, { label, path });
       else await createShortcut(label, path);
       setForm(null);
-      setError(null);
       await load();
     } catch (err) {
       if (err instanceof AuthError) return onAuthError();
       setError(err instanceof Error ? err.message : 'Failed to save');
+    } finally {
+      setPending(null);
     }
   }
 
   async function remove(id: string) {
+    if (pending) return;
     if (!confirm('Delete this shortcut?')) return;
+    setError(null);
+    setPending('delete');
     try {
       await deleteShortcut(id);
       setForm(null);
-      setError(null);
       await load();
     } catch (err) {
       if (err instanceof AuthError) return onAuthError();
       setError(err instanceof Error ? err.message : 'Failed to delete');
+    } finally {
+      setPending(null);
     }
   }
 
@@ -106,8 +120,13 @@ export function Shortcuts({ onOpen, onAuthError }: Props) {
         <div className="shortcut-chips">
           {shortcuts.map((s) => (
             <div className="shortcut-chip" key={s.id}>
-              <button className="shortcut-launch" onClick={() => launch(s)} title={s.path}>
-                {s.label}
+              <button
+                className="shortcut-launch"
+                onClick={() => launch(s)}
+                title={s.path}
+                disabled={launchingId === s.id}
+              >
+                {launchingId === s.id ? 'Launching…' : s.label}
               </button>
               <button
                 className="ghost shortcut-edit"
@@ -145,13 +164,19 @@ export function Shortcuts({ onOpen, onAuthError }: Props) {
             />
           </label>
           <div className="shortcut-form-actions">
-            <button onClick={save}>Save</button>
-            <button className="ghost" onClick={() => setForm(null)}>
+            <button onClick={save} disabled={pending !== null}>
+              {pending === 'save' ? 'Saving…' : 'Save'}
+            </button>
+            <button className="ghost" onClick={() => setForm(null)} disabled={pending !== null}>
               Cancel
             </button>
             {form.id && (
-              <button className="ghost danger" onClick={() => remove(form.id!)}>
-                Delete
+              <button
+                className="ghost danger"
+                onClick={() => remove(form.id!)}
+                disabled={pending !== null}
+              >
+                {pending === 'delete' ? 'Deleting…' : 'Delete'}
               </button>
             )}
           </div>
