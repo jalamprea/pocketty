@@ -25,11 +25,14 @@ export function Shortcuts({ onOpen, onAuthError }: Props) {
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState | null>(null);
+  // Default dir that relative paths resolve against (START_DIR or its fallback).
+  const [baseDir, setBaseDir] = useState('');
 
   const load = useCallback(async () => {
     try {
-      const { shortcuts } = await listShortcuts();
+      const { shortcuts, baseDir } = await listShortcuts();
       setShortcuts(shortcuts);
+      setBaseDir(baseDir);
     } catch (err) {
       if (err instanceof AuthError) return onAuthError();
       setError(err instanceof Error ? err.message : 'Failed to load shortcuts');
@@ -131,7 +134,11 @@ export function Shortcuts({ onOpen, onAuthError }: Props) {
           <label className="shortcut-field">
             <span className="field-label">Folder path</span>
             <input
-              placeholder="folder/app or /absolute/path/"
+              placeholder={
+                baseDir
+                  ? `Path relative to ${baseDir} or /absolute/folder/`
+                  : 'folder/app or /absolute/folder/'
+              }
               value={form.path}
               onChange={(e) => setForm({ ...form, path: e.target.value })}
               onKeyDown={(e) => e.key === 'Enter' && save()}

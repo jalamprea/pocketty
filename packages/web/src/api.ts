@@ -75,7 +75,7 @@ export interface Shortcut {
   path: string;
 }
 
-export function listShortcuts(): Promise<{ shortcuts: Shortcut[] }> {
+export function listShortcuts(): Promise<{ shortcuts: Shortcut[]; baseDir: string }> {
   return request('/api/shortcuts');
 }
 

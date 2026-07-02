@@ -105,8 +105,6 @@ export function SessionList({ onOpen, onLogout, onAuthError }: Props) {
         <button onClick={handleCreate}>+ New session</button>
       </div>
 
-      <Shortcuts onOpen={onOpen} onAuthError={onAuthError} />
-
       {error && <div className="error">{error}</div>}
       {loading && <p className="muted">Loading…</p>}
       {!loading && sessions.length === 0 && (
@@ -138,6 +136,8 @@ export function SessionList({ onOpen, onLogout, onAuthError }: Props) {
           </li>
         ))}
       </ul>
+
+      <Shortcuts onOpen={onOpen} onAuthError={onAuthError} />
     </div>
   );
 }

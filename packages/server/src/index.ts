@@ -92,7 +92,9 @@ app.patch<{ Params: { name: string } }>('/api/sessions/:name', async (req, reply
 
 app.get('/api/shortcuts', async (req, reply) => {
   if (!requireAuth(req)) return reply.code(401).send({ error: 'Unauthorized' });
-  return { shortcuts: await listFavorites() };
+  // baseDir = the directory relative shortcut paths resolve against (same as in
+  // favorites.ts), so the client can show it in the path placeholder.
+  return { shortcuts: await listFavorites(), baseDir: config.startDir ?? config.home };
 });
 
 const shortcutCreateSchema = z.object({ label: z.string(), path: z.string() });
