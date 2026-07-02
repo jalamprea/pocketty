@@ -105,10 +105,10 @@ export function SessionList({ onOpen, onLogout, onAuthError }: Props) {
         <button onClick={handleCreate}>+ New session</button>
       </div>
 
-      {error && <div className="error">{error}</div>}
-      {loading && <p className="muted">Loading…</p>}
+      {error && <div className="error page-message">{error}</div>}
+      {loading && <p className="muted page-message">Loading…</p>}
       {!loading && sessions.length === 0 && (
-        <p className="muted">No sessions. Create one to get started.</p>
+        <p className="muted page-message">No sessions. Create one to get started.</p>
       )}
 
       <ul className="session-list">

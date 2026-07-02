@@ -114,6 +114,11 @@ button.danger {
   font-size: 0.9rem;
 }
 
+/* Status lines (loading / empty / error) aligned with the page content. */
+.page-message {
+  padding: 0 1rem 1rem;
+}
+
 .page {
   display: flex;
   flex-direction: column;
