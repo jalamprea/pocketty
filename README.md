@@ -52,6 +52,10 @@ Edit `packages/server/.env`:
 - `JWT_SECRET` — the random secret.
 - `SHELL` — `/bin/zsh` on Mac.
 - `HOST` — leave it at `127.0.0.1` (you expose it with Tailscale, see below).
+- `START_DIR` — *(optional)* default folder for new sessions; also the base that
+  relative shortcut paths resolve against.
+- `DATA_DIR` — *(optional)* where shortcuts are stored (`favorites.json`);
+  defaults to `~/.tui-app-server`.
 
 ## Development (on `localhost`)
 
@@ -96,7 +100,11 @@ On the phone (with Tailscale active and logged into your tailnet):
 1. **Log in** with your password.
 2. **Session list**: create a new one or resume an existing one (it stays alive
    even if you close the app).
-3. In the **terminal**: type normal commands. For TUIs like `claude --resume`,
+3. **Shortcuts** (bottom bar): save the folders you use often and launch a fresh
+   session in one with a single tap — no `cd` needed. Paths can be absolute or
+   relative to `START_DIR`. Manage them with the `＋` (add) and `✎` (edit/delete)
+   buttons.
+4. In the **terminal**: type normal commands. For TUIs like `claude --resume`,
    use the bottom **control bar** for arrows/Enter/Esc; the **Ctrl** button
    turns the next key into Ctrl+_ (e.g. Ctrl+C).
 
