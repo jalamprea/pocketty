@@ -19,20 +19,14 @@ const KEYS = {
 };
 
 export function ControlBar({ send, ctrlActive, onToggleCtrl }: Props) {
+  // Orden por frecuencia de uso (de más a menos): Tab, Enter, flechas, Esc, Ctrl.
   return (
     <div className="controlbar">
-      <button
-        className={ctrlActive ? 'key active' : 'key'}
-        onClick={onToggleCtrl}
-        title="Próxima tecla como Ctrl+_"
-      >
-        Ctrl
-      </button>
-      <button className="key" onClick={() => send(KEYS.esc)}>
-        Esc
-      </button>
       <button className="key" onClick={() => send(KEYS.tab)}>
         Tab
+      </button>
+      <button className="key" onClick={() => send(KEYS.enter)}>
+        Enter
       </button>
       <button className="key" onClick={() => send(KEYS.left)}>
         ←
@@ -46,8 +40,15 @@ export function ControlBar({ send, ctrlActive, onToggleCtrl }: Props) {
       <button className="key" onClick={() => send(KEYS.right)}>
         →
       </button>
-      <button className="key wide" onClick={() => send(KEYS.enter)}>
-        Enter
+      <button className="key" onClick={() => send(KEYS.esc)}>
+        Esc
+      </button>
+      <button
+        className={ctrlActive ? 'key active' : 'key'}
+        onClick={onToggleCtrl}
+        title="Próxima tecla como Ctrl+_"
+      >
+        Ctrl
       </button>
     </div>
   );
