@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getToken, clearToken } from './api.ts';
+import { useViewportHeight } from './useViewportHeight.ts';
 import { Login } from './components/Login.tsx';
 import { SessionList } from './components/SessionList.tsx';
 import { TerminalView } from './components/TerminalView.tsx';
@@ -7,6 +8,8 @@ import { TerminalView } from './components/TerminalView.tsx';
 type View = { name: 'login' } | { name: 'sessions' } | { name: 'terminal'; session: string };
 
 export function App() {
+  useViewportHeight();
+
   const [view, setView] = useState<View>(() =>
     getToken() ? { name: 'sessions' } : { name: 'login' },
   );

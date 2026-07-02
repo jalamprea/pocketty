@@ -208,6 +208,18 @@ button.danger {
 
 /* Terminal */
 .terminal-page {
+  /*
+   * Anclada al viewport VISIBLE (no al layout viewport). Cuando el teclado
+   * sube en iOS, `--app-height`/`--app-top` (Visual Viewport API, ver
+   * useViewportHeight.ts) encogen y reposicionan la página para que la
+   * botonera nunca quede tapada por el teclado. Fallback a `100dvh` antes de
+   * que corra el JS o en navegadores sin visualViewport.
+   */
+  position: fixed;
+  top: var(--app-top, 0px);
+  left: 0;
+  right: 0;
+  height: var(--app-height, 100dvh);
   overflow: hidden;
 }
 
@@ -241,6 +253,19 @@ button.danger {
 
 .terminal-host .xterm {
   height: 100%;
+}
+
+/*
+ * xterm reposiciona su textarea oculto (captura de teclado + IME) siguiendo la
+ * fila del cursor. En móvil, al enfocar, iOS scrollea para revelar ESE textarea
+ * y, si el cursor está abajo, panea de más y empuja la botonera detrás del
+ * teclado. Lo clavamos arriba a la izquierda (invisible por opacity/width) para
+ * que iOS no tenga nada que revelar y no panee. `!important` vence al estilo
+ * inline que xterm aplica en runtime.
+ */
+.terminal-host .xterm .xterm-helper-textarea {
+  top: 0 !important;
+  left: 0 !important;
 }
 
 .controlbar {
