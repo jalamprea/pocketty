@@ -18,6 +18,8 @@ html,
 body,
 #root {
   height: 100%;
+  /* `vh` fills the standalone PWA viewport reliably where `%` under-reports. */
+  height: 100vh;
   margin: 0;
   /* Stops the whole-viewport bounce/scroll on mobile. */
   overscroll-behavior: none;
@@ -43,7 +45,7 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: var(--app-height, 100dvh);
   padding: 1rem;
 }
 
@@ -122,9 +124,11 @@ button.danger {
 .page {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  /* Keyboard-aware height: `--app-height` while the keyboard is open (see
+     useViewportHeight.ts), otherwise the full `100dvh` viewport. */
+  height: var(--app-height, 100dvh);
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
-    env(safe-area-inset-bottom) env(safe-area-inset-left);
+    0 env(safe-area-inset-left);
 }
 
 .topbar {
@@ -217,7 +221,10 @@ button.danger {
 
 /* Shortcuts — anchored at the bottom, subtly different surface. */
 .shortcuts {
-  padding: 0.75rem 1rem;
+  /* Using env(safe-area-inset-bottom) to push the shortcuts down from the bottom.
+  Combined with max() to ensure the padding is at least 1rem on desktop.
+  */
+  padding: 0.75rem 1rem max(env(safe-area-inset-bottom), 1rem);
   border-top: 1px solid var(--border);
   background: var(--surface);
 }
@@ -367,7 +374,8 @@ button.danger {
 .controlbar {
   display: flex;
   gap: 0.35rem;
-  padding: 0.5rem;
+  /* Clear the home indicator; collapses to 0 when the keyboard is open. */
+  padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
   background: var(--surface);
   overflow-x: auto;
