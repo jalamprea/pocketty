@@ -11,7 +11,7 @@ export interface TmuxSession {
   createdAt: number;
 }
 
-/** Nombres de sesión válidos: evita inyección y caracteres que tmux rechaza. */
+/** Valid session names: avoids injection and characters tmux rejects. */
 const NAME_RE = /^[A-Za-z0-9_.-]{1,64}$/;
 
 export function isValidSessionName(name: string): boolean {
@@ -46,7 +46,7 @@ export async function listSessions(): Promise<TmuxSession[]> {
         };
       });
   } catch (err: unknown) {
-    // tmux sale con código != 0 cuando no hay servidor/sesiones: lista vacía.
+    // tmux exits with a non-zero code when there is no server/sessions: empty list.
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes('no server running') || message.includes('no sessions')) {
       return [];
@@ -55,10 +55,35 @@ export async function listSessions(): Promise<TmuxSession[]> {
   }
 }
 
-export async function createSession(name: string): Promise<void> {
+export async function createSession(name: string, cwd?: string): Promise<void> {
   const args = ['new-session', '-d', '-s', name, '-x', '120', '-y', '40'];
-  if (config.startDir) args.push('-c', config.startDir);
+  const dir = cwd ?? config.startDir;
+  if (dir) args.push('-c', dir);
   await tmux(args);
+}
+
+/** Sanitizes text into a valid session name (same charset as NAME_RE). */
+export function sanitizeSessionName(input: string): string {
+  const cleaned = input
+    .replace(/[^A-Za-z0-9_.-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64);
+  return cleaned || 'session';
+}
+
+/**
+ * Returns `base` (sanitized), or `base-2`, `base-3`… — the first free name
+ * against `existing`. Used when launching shortcuts (always a new session).
+ */
+export function uniqueSessionName(base: string, existing: string[]): string {
+  const taken = new Set(existing);
+  const name = sanitizeSessionName(base);
+  if (!taken.has(name)) return name;
+  for (let i = 2; ; i++) {
+    const suffix = `-${i}`;
+    const candidate = name.slice(0, 64 - suffix.length) + suffix;
+    if (!taken.has(candidate)) return candidate;
+  }
 }
 
 export async function killSession(name: string): Promise<void> {
@@ -70,16 +95,16 @@ export async function renameSession(name: string, newName: string): Promise<void
 }
 
 /**
- * Habilita el modo mouse del servidor tmux: la rueda del mouse (desktop) y el
- * scroll táctil sintético (móvil, ver TerminalView) entran en copy mode y
- * scrollean el historial en lugar de mandar flechas. Es una opción global del
- * servidor, así que también aplica al tmux de la laptop.
+ * Enables the tmux server's mouse mode: the mouse wheel (desktop) and the
+ * synthetic touch scroll (mobile, see TerminalView) enter copy mode and
+ * scroll the history instead of sending arrow keys. It is a global server
+ * option, so it also applies to the laptop's tmux.
  */
 export async function enableMouse(): Promise<void> {
   try {
     await tmux(['set-option', '-g', 'mouse', 'on']);
   } catch {
-    // Sin servidor todavía: el próximo attach lo reintenta.
+    // No server yet: the next attach retries it.
   }
 }
 

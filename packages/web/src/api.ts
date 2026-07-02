@@ -24,15 +24,15 @@ class AuthError extends Error {}
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers = new Headers(init.headers);
-  // Solo declaramos JSON cuando realmente mandamos body: Fastify rechaza un
-  // body vacío si el Content-Type es application/json (ej. DELETE sin body).
+  // Only declare JSON when we actually send a body: Fastify rejects an empty
+  // body if the Content-Type is application/json (e.g. DELETE without a body).
   if (init.body != null) headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const res = await fetch(path, { ...init, headers });
   if (res.status === 401) {
     clearToken();
-    throw new AuthError('No autorizado');
+    throw new AuthError('Unauthorized');
   }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -69,7 +69,43 @@ export function renameSession(name: string, newName: string): Promise<{ ok: bool
   });
 }
 
-/** URL del WebSocket del terminal, con token y sesión en la query. */
+export interface Shortcut {
+  id: string;
+  label: string;
+  path: string;
+}
+
+export function listShortcuts(): Promise<{ shortcuts: Shortcut[] }> {
+  return request('/api/shortcuts');
+}
+
+export function createShortcut(label: string, path: string): Promise<{ shortcut: Shortcut }> {
+  return request('/api/shortcuts', {
+    method: 'POST',
+    body: JSON.stringify({ label, path }),
+  });
+}
+
+export function updateShortcut(
+  id: string,
+  data: { label?: string; path?: string },
+): Promise<{ shortcut: Shortcut }> {
+  return request(`/api/shortcuts/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteShortcut(id: string): Promise<{ ok: boolean }> {
+  return request(`/api/shortcuts/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+/** Creates a new session inside the shortcut's folder; returns its name. */
+export function launchShortcut(id: string): Promise<{ name: string }> {
+  return request(`/api/shortcuts/${encodeURIComponent(id)}/launch`, { method: 'POST' });
+}
+
+/** Terminal WebSocket URL, with token and session in the query. */
 export function terminalWsUrl(session: string): string {
   const token = getToken() ?? '';
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';

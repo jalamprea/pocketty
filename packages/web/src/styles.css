@@ -19,7 +19,7 @@ body,
 #root {
   height: 100%;
   margin: 0;
-  /* Corta el rebote/scroll del viewport completo en móvil. */
+  /* Stops the whole-viewport bounce/scroll on mobile. */
   overscroll-behavior: none;
 }
 
@@ -208,14 +208,97 @@ button.danger {
   padding: 0 1.1rem;
 }
 
+/* Shortcuts */
+.shortcuts {
+  padding: 0 1rem 0.5rem;
+}
+
+.shortcuts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.shortcuts-title {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.shortcuts-head .ghost {
+  padding: 0.25rem 0.6rem;
+}
+
+.shortcut-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.shortcut-chip {
+  display: flex;
+  align-items: stretch;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.shortcut-launch {
+  background: transparent;
+  color: var(--text);
+  border: none;
+  border-radius: 0;
+  padding: 0.5rem 0.8rem;
+  font-weight: 600;
+  max-width: 60vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shortcut-edit {
+  border: none;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  padding: 0 0.7rem;
+}
+
+.shortcut-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  margin-top: 0.6rem;
+}
+
+.shortcut-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.shortcut-field .field-label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.shortcut-form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 /* Terminal */
 .terminal-page {
   /*
-   * Anclada al viewport VISIBLE (no al layout viewport). Cuando el teclado
-   * sube en iOS, `--app-height`/`--app-top` (Visual Viewport API, ver
-   * useViewportHeight.ts) encogen y reposicionan la página para que la
-   * botonera nunca quede tapada por el teclado. Fallback a `100dvh` antes de
-   * que corra el JS o en navegadores sin visualViewport.
+   * Anchored to the VISIBLE viewport (not the layout viewport). When the
+   * keyboard rises on iOS, `--app-height`/`--app-top` (Visual Viewport API, see
+   * useViewportHeight.ts) shrink and reposition the page so the control bar is
+   * never covered by the keyboard. Falls back to `100dvh` before the JS runs or
+   * in browsers without visualViewport.
    */
   position: fixed;
   top: var(--app-top, 0px);
@@ -251,7 +334,7 @@ button.danger {
   min-height: 0;
   padding: 0.4rem;
   background: var(--bg);
-  /* Nosotros manejamos el gesto vertical (scroll de tmux), no el navegador. */
+  /* We handle the vertical gesture (tmux scroll), not the browser. */
   touch-action: none;
 }
 
@@ -260,12 +343,12 @@ button.danger {
 }
 
 /*
- * xterm reposiciona su textarea oculto (captura de teclado + IME) siguiendo la
- * fila del cursor. En móvil, al enfocar, iOS scrollea para revelar ESE textarea
- * y, si el cursor está abajo, panea de más y empuja la botonera detrás del
- * teclado. Lo clavamos arriba a la izquierda (invisible por opacity/width) para
- * que iOS no tenga nada que revelar y no panee. `!important` vence al estilo
- * inline que xterm aplica en runtime.
+ * xterm repositions its hidden textarea (keyboard capture + IME) following the
+ * cursor row. On mobile, when focusing, iOS scrolls to reveal THAT textarea and,
+ * if the cursor is at the bottom, pans too far and pushes the control bar behind
+ * the keyboard. We pin it to the top left (invisible via opacity/width) so iOS
+ * has nothing to reveal and doesn't pan. `!important` beats the inline style
+ * xterm applies at runtime.
  */
 .terminal-host .xterm .xterm-helper-textarea {
   top: 0 !important;

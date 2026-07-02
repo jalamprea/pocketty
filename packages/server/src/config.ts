@@ -9,31 +9,46 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 function required(name: string, value: string | undefined): string {
   if (!value || value.trim() === '') {
     throw new Error(
-      `Falta la variable de entorno ${name}. Copia .env.example a .env y complétala.`,
+      `Missing environment variable ${name}. Copy .env.example to .env and fill it in.`,
     );
   }
   return value;
 }
 
 /**
- * Directorio inicial para las sesiones nuevas (START_DIR). Debe ser una ruta
- * absoluta a un directorio existente; si no, se ignora y se usa el default
- * (cwd del server). Devuelve null cuando no está configurado o es inválido.
+ * Resolves `input` to an existing absolute directory. If it is relative, resolves
+ * it against `base`. Returns the absolute path or null if it does not exist / is not a directory.
+ * Reused by START_DIR and by the shortcuts (see favorites.ts).
+ */
+export function resolveExistingDir(input: string | undefined, base: string): string | null {
+  if (!input || input.trim() === '') return null;
+  const raw = input.trim();
+  const dir = path.isAbsolute(raw) ? raw : path.resolve(base, raw);
+  try {
+    if (!statSync(dir).isDirectory()) return null;
+  } catch {
+    return null;
+  }
+  return dir;
+}
+
+/**
+ * Initial directory for new sessions (START_DIR). Must be an absolute path
+ * to an existing directory; otherwise it is ignored and the default is used
+ * (server cwd). Returns null when it is not configured or is invalid.
  */
 function resolveStartDir(value: string | undefined): string | null {
   if (!value || value.trim() === '') return null;
   const dir = value.trim();
   if (!path.isAbsolute(dir)) {
-    console.warn(`[config] START_DIR ignorado: "${dir}" no es una ruta absoluta.`);
+    console.warn(`[config] START_DIR ignored: "${dir}" is not an absolute path.`);
     return null;
   }
-  try {
-    if (!statSync(dir).isDirectory()) throw new Error('no es un directorio');
-  } catch {
-    console.warn(`[config] START_DIR ignorado: "${dir}" no existe o no es un directorio.`);
-    return null;
+  const resolved = resolveExistingDir(dir, dir);
+  if (!resolved) {
+    console.warn(`[config] START_DIR ignored: "${dir}" does not exist or is not a directory.`);
   }
-  return dir;
+  return resolved;
 }
 
 const defaultWebDir = path.resolve(__dirname, '../../web/dist');
@@ -48,6 +63,9 @@ export const config = {
   home: os.homedir(),
   startDir: resolveStartDir(process.env.START_DIR),
   webDir: process.env.WEB_DIR ? path.resolve(process.env.WEB_DIR) : defaultWebDir,
+  dataDir: process.env.DATA_DIR
+    ? path.resolve(process.env.DATA_DIR)
+    : path.join(os.homedir(), '.tui-app-server'),
 };
 
 export type Config = typeof config;
