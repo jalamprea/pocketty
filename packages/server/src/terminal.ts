@@ -1,6 +1,7 @@
 import * as pty from 'node-pty';
 import type { WebSocket } from 'ws';
 import { config } from './config.js';
+import { enableMouse } from './tmux.js';
 
 interface ClientMessage {
   type: 'input' | 'resize';
@@ -30,7 +31,14 @@ export function attachTerminal(socket: WebSocket, sessionName: string): void {
     env: { ...process.env, HOME: config.home, TERM: 'xterm-256color' },
   });
 
+  // Al primer frame el servidor tmux ya está corriendo: activamos el mouse mode
+  // una sola vez para que la rueda/scroll táctil scrolleen el historial.
+  let mouseEnabled = false;
   const onData = term.onData((data) => {
+    if (!mouseEnabled) {
+      mouseEnabled = true;
+      void enableMouse();
+    }
     if (socket.readyState === socket.OPEN) {
       socket.send(data);
     }

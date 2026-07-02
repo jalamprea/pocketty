@@ -69,6 +69,20 @@ export async function renameSession(name: string, newName: string): Promise<void
   await tmux(['rename-session', '-t', name, newName]);
 }
 
+/**
+ * Habilita el modo mouse del servidor tmux: la rueda del mouse (desktop) y el
+ * scroll táctil sintético (móvil, ver TerminalView) entran en copy mode y
+ * scrollean el historial en lugar de mandar flechas. Es una opción global del
+ * servidor, así que también aplica al tmux de la laptop.
+ */
+export async function enableMouse(): Promise<void> {
+  try {
+    await tmux(['set-option', '-g', 'mouse', 'on']);
+  } catch {
+    // Sin servidor todavía: el próximo attach lo reintenta.
+  }
+}
+
 export async function sessionExists(name: string): Promise<boolean> {
   try {
     await tmux(['has-session', '-t', name]);

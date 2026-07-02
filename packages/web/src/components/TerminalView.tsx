@@ -86,7 +86,44 @@ export function TerminalView({ session, onBack, onAuthError }: Props) {
     });
     resizeObserver.observe(containerRef.current!);
 
+    // Scroll táctil → historial de tmux. En el celular no hay rueda, así que
+    // traducimos el arrastre vertical en eventos de rueda SGR (botón 64 = arriba,
+    // 65 = abajo) que tmux (con mouse mode) interpreta como scroll del copy mode.
+    // Arrastrar hacia abajo revela lo anterior (rueda arriba), como al leer.
+    const host = containerRef.current!;
+    let touchY = 0;
+    let accum = 0;
+    const STEP = 18; // píxeles de arrastre por "tick" de rueda
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      touchY = e.touches[0].clientY;
+      accum = 0;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      const y = e.touches[0].clientY;
+      accum += y - touchY;
+      touchY = y;
+      const col = Math.max(1, (term.cols / 2) | 0);
+      const row = Math.max(1, (term.rows / 2) | 0);
+      while (accum >= STEP) {
+        sendInput(`\x1b[<64;${col};${row}M`);
+        accum -= STEP;
+      }
+      while (accum <= -STEP) {
+        sendInput(`\x1b[<65;${col};${row}M`);
+        accum += STEP;
+      }
+      e.preventDefault(); // evita el rebote del viewport
+    };
+
+    host.addEventListener('touchstart', onTouchStart, { passive: true });
+    host.addEventListener('touchmove', onTouchMove, { passive: false });
+
     return () => {
+      host.removeEventListener('touchstart', onTouchStart);
+      host.removeEventListener('touchmove', onTouchMove);
       resizeObserver.disconnect();
       dataSub.dispose();
       ws.close();

@@ -19,6 +19,8 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  /* Corta el rebote/scroll del viewport completo en móvil. */
+  overscroll-behavior: none;
 }
 
 body {
@@ -249,6 +251,8 @@ button.danger {
   min-height: 0;
   padding: 0.4rem;
   background: var(--bg);
+  /* Nosotros manejamos el gesto vertical (scroll de tmux), no el navegador. */
+  touch-action: none;
 }
 
 .terminal-host .xterm {
