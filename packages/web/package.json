@@ -1,5 +1,5 @@
 {
-  "name": "@tui-app/web",
+  "name": "@pocketty/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",

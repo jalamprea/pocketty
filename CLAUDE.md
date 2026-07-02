@@ -39,7 +39,7 @@ Two packages, both ESM (`"type": "module"`), TypeScript, sharing `tsconfig.base.
 ### Server (`packages/server/src`)
 
 - `config.ts` — central env config; `JWT_SECRET` and `PASSWORD_HASH` are **required** (throws on startup if missing). Copy `.env.example` → `.env`.
-- `auth.ts` — single-user model: one bcrypt password hash → a JWT (`sub: 'tui-app-user'`). No user accounts.
+- `auth.ts` — single-user model: one bcrypt password hash → a JWT (`sub: 'pocketty-user'`). No user accounts.
 - `tmux.ts` — shells out to `tmux` via `execFile` (arg arrays, never a shell string). `listSessions` treats "no server/sessions" as an empty list. Session names are validated against `NAME_RE` (`isValidSessionName`) on **every** route to prevent injection — keep this guard when adding session endpoints.
 - `terminal.ts` — `attachTerminal` spawns `tmux new-session -A -s <name>` (attach-or-create). **tmux is the persistence layer**: closing the WebSocket calls `term.kill()` which only _detaches_ the tmux client; the session stays alive for resume. Killing a session is explicit (the DELETE route).
 - `index.ts` — routes + WS handler. In production, if `web/dist` exists it's served statically with an SPA fallback (non-`/api` routes → `index.html`).

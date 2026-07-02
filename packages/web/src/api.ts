@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'tui-app-token';
+const TOKEN_KEY = 'pocketty-token';
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);

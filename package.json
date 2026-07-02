@@ -1,8 +1,8 @@
 {
-  "name": "tui-app-server",
+  "name": "pocketty",
   "version": "0.1.0",
   "private": true,
-  "description": "Terminal UI server and PWA to manage remote terminal/tmux sessions from your phone.",
+  "description": "Your terminal in your pocket — drive your laptop's tmux sessions from your phone.",
   "workspaces": [
     "packages/server",
     "packages/web"

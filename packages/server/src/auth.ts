@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { config } from './config.js';
 
-const SUBJECT = 'tui-app-user';
+const SUBJECT = 'pocketty-user';
 
 export async function verifyPassword(password: string): Promise<boolean> {
   if (!password) return false;

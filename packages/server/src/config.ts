@@ -65,7 +65,7 @@ export const config = {
   webDir: process.env.WEB_DIR ? path.resolve(process.env.WEB_DIR) : defaultWebDir,
   dataDir: process.env.DATA_DIR
     ? path.resolve(process.env.DATA_DIR)
-    : path.join(os.homedir(), '.tui-app-server'),
+    : path.join(os.homedir(), '.pocketty'),
 };
 
 export type Config = typeof config;

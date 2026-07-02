@@ -1,13 +1,17 @@
-# tui-app-server
+# pocketty
 
-Drive your laptop's terminal sessions **from your phone**, via a PWA. Built for
-daily use with **Claude Code**: create/resume CLI sessions (`claude --resume`),
-run commands and aliases from your `.zshrc` (`gl`, `gdevtostage`, `cd`,
-`ls -al`…), then jump over to the Claude Code mobile app.
+**Your terminal, in your pocket** (`pocket` + `tty`). Drive your laptop's
+terminal/tmux sessions **from your phone**, via a PWA. Built for daily use with
+**Claude Code**: create/resume CLI sessions (`claude --resume`), run commands
+and aliases from your `.zshrc` (`gl`, `gdevtostage`, `cd`, `ls -al`…), then jump
+over to the Claude Code mobile app.
 
 Sessions run inside **tmux**, so they survive phone disconnects and backend
 restarts: you can resume exactly where you left off, including interactive TUIs
 (menus, arrow keys, ANSI) like `claude --resume`.
+
+> **Why it exists:** pocketty was born from a real need — taking my dog **Loky**
+> for a walk without losing control of my terminal.
 
 ## Architecture
 
@@ -55,7 +59,7 @@ Edit `packages/server/.env`:
 - `START_DIR` — *(optional)* default folder for new sessions; also the base that
   relative shortcut paths resolve against.
 - `DATA_DIR` — *(optional)* where shortcuts are stored (`favorites.json`);
-  defaults to `~/.tui-app-server`.
+  defaults to `~/.pocketty`.
 
 ## Development (on `localhost`)
 

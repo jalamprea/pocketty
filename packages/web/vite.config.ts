@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Remote Terminal',
-        short_name: 'Terminal',
-        description: 'Manage your remote terminal/tmux sessions from your phone.',
+        name: 'pocketty',
+        short_name: 'pocketty',
+        description: 'Your terminal in your pocket — drive tmux sessions from your phone.',
         theme_color: '#0b0e14',
         background_color: '#0b0e14',
         display: 'standalone',

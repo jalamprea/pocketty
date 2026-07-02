@@ -1,5 +1,5 @@
 {
-  "name": "@tui-app/server",
+  "name": "@pocketty/server",
   "version": "0.1.0",
   "private": true,
   "type": "module",

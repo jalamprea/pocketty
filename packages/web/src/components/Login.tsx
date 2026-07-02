@@ -23,7 +23,7 @@ export function Login({ onLoggedIn }: { onLoggedIn: () => void }) {
   return (
     <div className="centered">
       <form className="card login" onSubmit={handleSubmit}>
-        <h1>Remote Terminal</h1>
+        <h1>pocketty</h1>
         <p className="muted">Enter your password to connect.</p>
         <input
           type="password"
