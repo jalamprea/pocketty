@@ -53,6 +53,7 @@ PWA (mobile)  ──HTTPS login──▶  JWT
 - `tmux` (`brew install tmux`)
 - `zsh` (default on macOS) — so your `.zshrc` aliases load
 - [Tailscale](https://tailscale.com/) on the Mac **and** on the phone
+  *(recommended for remote access — or a [Cloudflare Tunnel](#remote-access-with-cloudflare-tunnel-alternative), with caveats)*
 
 ## Setup
 
@@ -118,6 +119,52 @@ On the phone (with Tailscale active and logged into your tailnet):
 
 > Only your own devices on the tailnet can reach the backend; nothing is exposed
 > to the public internet. The password→JWT is the second layer.
+
+## Remote access with Cloudflare Tunnel (alternative)
+
+If you can't or don't want to use Tailscale, [Cloudflare
+Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
+(`cloudflared`) can also put HTTPS in front of the backend. **No code changes are
+needed** — the backend still binds `127.0.0.1:8723` and `cloudflared` proxies to
+it, exactly like `tailscale serve` does. WebSockets (the live terminal) work over
+the tunnel out of the box.
+
+> [!WARNING]
+> **Cloudflare and Tailscale do not share the same security model.** Tailscale
+> keeps the backend inside a **private network** — only your own devices can even
+> reach the login page. A Cloudflare tunnel publishes pocketty to the **public
+> internet**, which makes your password→JWT the *only* barrier between the world
+> and a shell on your Mac. Prefer Tailscale unless you have a specific reason not
+> to, and never run a public tunnel without a strong password and a strong
+> `JWT_SECRET`.
+
+There are two ways to run it, with very different trade-offs:
+
+### Quick tunnel — easiest, but public and temporary
+
+One command, no account, no domain. Cloudflare hands you a random
+`https://<random>.trycloudflare.com` URL that changes on every restart.
+
+```bash
+npm run build && npm start                      # backend on :8723
+cloudflared tunnel --url http://localhost:8723  # prints the public URL
+```
+
+Good for a quick test or throwaway access. **Anyone on the internet who has the
+URL can reach it** — treat it as convenience at your own risk, and stop the
+tunnel when you're done.
+
+### Named tunnel + Access — stable, but more setup
+
+For permanent use, create a *named* tunnel bound to a domain you own on
+Cloudflare and put [Cloudflare
+Access](https://developers.cloudflare.com/cloudflare-one/policies/access/) in
+front of it as an authentication layer (SSO / one-time PIN) **before** the
+request ever reaches pocketty. This is *more* setup than Tailscale — it needs a
+Cloudflare account, a domain, and Access policies — but it restores an outer auth
+barrier instead of leaving the password alone. See Cloudflare's [Create a
+tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/)
+guide for the walkthrough.
 
 ## Usage
 
