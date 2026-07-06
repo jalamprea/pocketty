@@ -47,8 +47,14 @@ export async function listSessions(): Promise<TmuxSession[]> {
       });
   } catch (err: unknown) {
     // tmux exits with a non-zero code when there is no server/sessions: empty list.
+    // "error connecting to <socket> (No such file or directory)" is the variant
+    // after a reboot, when /tmp is cleared and the socket never got created.
     const message = err instanceof Error ? err.message : String(err);
-    if (message.includes('no server running') || message.includes('no sessions')) {
+    if (
+      message.includes('no server running') ||
+      message.includes('no sessions') ||
+      message.includes('error connecting to')
+    ) {
       return [];
     }
     throw err;
