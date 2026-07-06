@@ -2,7 +2,7 @@
 
 # 📟 pocketty
 
-### Your terminal, in your pocket.
+### Your computer terminal, in your pocket.
 
 Drive your computer's **tmux** sessions from your **phone** — a self-hosted PWA
 for when you step away from your desk but not from your work.
