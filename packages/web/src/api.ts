@@ -54,7 +54,8 @@ export function listSessions(): Promise<{ sessions: Session[] }> {
   return request('/api/sessions');
 }
 
-export function createSession(name: string): Promise<{ ok: boolean }> {
+/** Creates a session; `name` in the response is the name tmux assigned. */
+export function createSession(name: string): Promise<{ ok: boolean; name: string }> {
   return request('/api/sessions', { method: 'POST', body: JSON.stringify({ name }) });
 }
 

@@ -10,7 +10,8 @@ import {
 import { Shortcuts } from './Shortcuts.tsx';
 
 // Same character set the backend validates (isValidSessionName).
-const NAME_RE = /^[A-Za-z0-9_.-]{1,64}$/;
+// No "." or ":": tmux rewrites them to "_" and parses them as target separators.
+const NAME_RE = /^[A-Za-z0-9_-]{1,64}$/;
 
 interface Props {
   onOpen: (session: string) => void;
@@ -44,10 +45,14 @@ export function SessionList({ onOpen, onLogout, onAuthError }: Props) {
 
   async function handleCreate() {
     const name = newName.trim() || `session-${Date.now().toString(36)}`;
+    if (!NAME_RE.test(name)) {
+      setError('Invalid name. Use letters, numbers, "_" or "-" (max 64).');
+      return;
+    }
     try {
-      await createSession(name);
+      const created = await createSession(name);
       setNewName('');
-      onOpen(name);
+      onOpen(created.name);
     } catch (err) {
       if (err instanceof AuthError) return onAuthError();
       setError(err instanceof Error ? err.message : 'Failed to create session');
@@ -58,7 +63,7 @@ export function SessionList({ onOpen, onLogout, onAuthError }: Props) {
     const next = prompt(`New name for "${name}":`, name)?.trim();
     if (!next || next === name) return;
     if (!NAME_RE.test(next)) {
-      setError('Invalid name. Use letters, numbers, "_", "." or "-" (max 64).');
+      setError('Invalid name. Use letters, numbers, "_" or "-" (max 64).');
       return;
     }
     try {

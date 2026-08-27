@@ -8,3 +8,4 @@ build/
 packages/server/public/
 coverage/
 *.tsbuildinfo
+.atl/

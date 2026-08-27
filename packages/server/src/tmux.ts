@@ -11,8 +11,13 @@ export interface TmuxSession {
   createdAt: number;
 }
 
-/** Valid session names: avoids injection and characters tmux rejects. */
-const NAME_RE = /^[A-Za-z0-9_.-]{1,64}$/;
+/**
+ * Valid session names: avoids injection and characters tmux rewrites.
+ * `.` and `:` are excluded on purpose: tmux silently replaces them with `_`
+ * when creating a session, and treats them as target separators
+ * (`session:window.pane`), so a name containing them can never be resolved.
+ */
+const NAME_RE = /^[A-Za-z0-9_-]{1,64}$/;
 
 export function isValidSessionName(name: string): boolean {
   return NAME_RE.test(name);
@@ -61,17 +66,40 @@ export async function listSessions(): Promise<TmuxSession[]> {
   }
 }
 
-export async function createSession(name: string, cwd?: string): Promise<void> {
-  const args = ['new-session', '-d', '-s', name, '-x', '120', '-y', '40'];
+/**
+ * Creates a detached session and returns the name tmux actually assigned.
+ * tmux normalizes the requested name (see NAME_RE), so never assume the
+ * created session is called `name` — use the returned value.
+ */
+export async function createSession(name: string, cwd?: string): Promise<string> {
+  const args = [
+    'new-session',
+    '-d',
+    '-P',
+    '-F',
+    '#{session_name}',
+    '-s',
+    name,
+    '-x',
+    '120',
+    '-y',
+    '40',
+  ];
   const dir = cwd ?? config.startDir;
   if (dir) args.push('-c', dir);
-  await tmux(args);
+  const out = await tmux(args);
+  return out.trim() || name;
 }
 
-/** Sanitizes text into a valid session name (same charset as NAME_RE). */
+/**
+ * Sanitizes text into a valid session name (same charset as NAME_RE).
+ * `.` and `:` become `_`, mirroring tmux's own rewrite, so the name we
+ * compute here is the name tmux ends up storing.
+ */
 export function sanitizeSessionName(input: string): string {
   const cleaned = input
-    .replace(/[^A-Za-z0-9_.-]+/g, '-')
+    .replace(/[.:]/g, '_')
+    .replace(/[^A-Za-z0-9_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 64);
   return cleaned || 'session';
@@ -90,6 +118,26 @@ export function uniqueSessionName(base: string, existing: string[]): string {
     const candidate = name.slice(0, 64 - suffix.length) + suffix;
     if (!taken.has(candidate)) return candidate;
   }
+}
+
+/**
+ * Creates a new session named after `base`, avoiding collisions with the
+ * sessions that already exist. Retries on tmux's "duplicate session" error:
+ * listing and creating are not atomic, and another client (or the computer's
+ * own tmux) can take the name in between.
+ */
+export async function createUniqueSession(base: string, cwd?: string): Promise<string> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const existing = (await listSessions()).map((s) => s.name);
+    const name = uniqueSessionName(base, existing);
+    try {
+      return await createSession(name, cwd);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (!message.includes('duplicate session')) throw err;
+    }
+  }
+  throw new Error('Could not find a free session name.');
 }
 
 export async function killSession(name: string): Promise<void> {

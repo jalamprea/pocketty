@@ -8,11 +8,11 @@ import { config, resolveExistingDir } from './config.js';
 import { issueToken, verifyPassword, verifyToken, tokenFromHeader } from './auth.js';
 import {
   createSession,
+  createUniqueSession,
   killSession,
   renameSession,
   listSessions,
   isValidSessionName,
-  uniqueSessionName,
 } from './tmux.js';
 import {
   listFavorites,
@@ -63,8 +63,8 @@ app.post('/api/sessions', async (req, reply) => {
   if (!parsed.success || !isValidSessionName(parsed.data.name)) {
     return reply.code(400).send({ error: 'Invalid session name' });
   }
-  await createSession(parsed.data.name);
-  return { ok: true };
+  const name = await createSession(parsed.data.name);
+  return { ok: true, name };
 });
 
 app.delete<{ Params: { name: string } }>('/api/sessions/:name', async (req, reply) => {
@@ -146,9 +146,7 @@ app.post<{ Params: { id: string } }>('/api/shortcuts/:id/launch', async (req, re
   if (!dir) {
     return reply.code(400).send({ error: `Folder "${favorite.path}" no longer exists.` });
   }
-  const existing = (await listSessions()).map((s) => s.name);
-  const name = uniqueSessionName(path.basename(dir), existing);
-  await createSession(name, dir);
+  const name = await createUniqueSession(path.basename(dir), dir);
   return { name };
 });
 
